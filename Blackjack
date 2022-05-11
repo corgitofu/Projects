@@ -1,4 +1,6 @@
 #Created on 5/11/2022 by https://github.com/corgitofu
+#Made for Python and scripted on Python 3.10
+#Starts with 8 decks of 52 cards, automatic dealing with hit and stay options
 
 import random as rand
 import time
