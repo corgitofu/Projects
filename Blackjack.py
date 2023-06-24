@@ -1,171 +1,140 @@
-#Created on 5/11/2022 by https://github.com/corgitofu
-#Made for Python and scripted on Python 3.10
-#Starts with 8 decks of 52 cards, automatic dealing with hit and stay options
+import random
 
-import random as rand
-import time
-
-#initializes the decks for backjack
+# Initializes the decks for blackjack
 blackjack = []
 
 
-def cardRefill(refill):
-    for x in range (1,9):
-        for y in range(0,4):
-            for z in range(2,11):
+def cardRefill():
+    for i in range(1, 9):
+        for j in range(0, 4):
+            for z in range(2, 11):
                 blackjack.append(z)
-            blackjack.append("A")
-            blackjack.append("J")
-            blackjack.append("Q")
-            blackjack.append("K")
-    refill = len(blackjack)
-    return refill
+            blackjack.extend(["A", "J", "Q", "K"])
+    random.shuffle(blackjack)
+
 
 def cardDeal(handValue):
-    soft = False
-    while True:
-        if len(blackjack) > 0:
-            try:
-                selected = rand.randrange(len(blackjack)-1)
-                chosen = blackjack[selected]
-                del blackjack[selected]
-                if chosen == "J" or chosen == "Q" or chosen == "K":
-                    cardValue = 10
-                elif chosen == "A":
-                        if handValue >= 11:
-                            cardValue = 1
-                        else: 
-                            cardValue = 11
-                            soft = True
-                else:
-                    cardValue = chosen
-                return chosen, cardValue, soft
-            except ValueError:
-                print('no more cards, reshuffling')
-                (cardRefill("yes"))
-                selected = rand.randrange(len(blackjack)-1)
-                chosen = blackjack[selected]
-                del blackjack[selected]
-                if chosen == "J" or chosen == "Q" or chosen == "K":
-                    cardValue = 10
-                elif chosen == "A":
-                        if handValue >= 11:
-                            cardValue = 1
-                        else: 
-                            cardValue = 11
-                            soft = True
-                else:
-                    cardValue = chosen
-                return chosen, cardValue, soft
-        else:
-            (cardRefill("yes"))
-            selected = rand.randrange(len(blackjack)-1)
-            chosen = blackjack[selected]
-            del blackjack[selected]
-            if chosen == "J" or chosen == "Q" or chosen == "K":
+    if len(blackjack) > 0:
+        try:
+            selected = blackjack.pop()
+            if selected in ["J", "Q", "K"]:
                 cardValue = 10
-            elif chosen == "A":
+            elif selected == "A":
                 if handValue >= 11:
                     cardValue = 1
-                else: 
-                    cardValue = 11
-                    soft = True
-            else:
-                cardValue = chosen
-            return chosen, cardValue, soft
-
-
-while True:
-    print("Welcome to blackjack, dealing cards")
-    playerHand = []
-    computerHand = []
-    playerHandVal = 0
-    computerHandVal = 0
-    playerSoft = False
-    computerSoft = False
-    for x in range(0,2):
-        selectedCard=cardDeal(playerHandVal)
-        playerHand.append(selectedCard[0])
-        playerHandVal+=int(selectedCard[1])
-        if selectedCard[2] == True:
-            playerSoft = True
-    #compute computerHand
-    for x in range(0,2):
-        selectedCard=cardDeal(computerHandVal)
-        computerHand.append(selectedCard[0])
-        computerHandVal+=int(selectedCard[1])
-        if selectedCard[2] == True:
-            computerSoft = True
-    if playerHandVal == 21:
-        print("Winner")
-    else:
-        print("Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-        print("Computer Hand:", str(computerHand[0]), "X")
-        print("Cards remaining:", str(len(blackjack)))
-    ongoing = True
-    while ongoing == True:
-        if playerHandVal == 21:
-            print("You win! Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-            print("Computer Hand:", computerHand, "Value:", str(computerHandVal), "Soft Number:", str(computerSoft))
-            print("Cards remaining:", str(len(blackjack)))
-            ongoing = False
-        elif playerHandVal < 21:
-            print("Hit or stay?")
-            choice = str(input())
-            choice = choice.lower()
-            if choice == "stay":
-                ongoing = False
-                if playerHandVal <= 21:
-                    while computerHandVal <= 16:
-                        selectedCard=cardDeal(computerHandVal)
-                        computerHand.append(selectedCard[0])
-                        computerHandVal+=int(selectedCard[1])
-                        if computerHandVal >= 21 and computerSoft == True:
-                            computerHandVal -= 10
-                            computerSoft = False
-                if computerHandVal > 21:
-                    print("You win! Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-                    print("Computer Hand:", computerHand, "Value:", str(computerHandVal), "(Bust)")
-                    print("Cards remaining:", str(len(blackjack)))
-                elif playerHandVal > computerHandVal:
-                    print("You win! Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-                    print("Computer Hand:", computerHand, "Value:", str(computerHandVal), "Soft Number:", str(computerSoft))
-                    print("Cards remaining:", str(len(blackjack)))
-                elif playerHandVal < computerHandVal:
-                    print("You lose! Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-                    print("Computer Hand:", computerHand, "Value:", str(computerHandVal), "Soft Number:", str(computerSoft))
-                    print("Cards remaining:", str(len(blackjack)))
-                elif playerHandVal == computerHandVal:
-                    print("Draw. Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-                    print("Computer Hand:", computerHand, "Value:", str(computerHandVal), "Soft Number:", str(computerSoft))
-                    print("Cards remaining:", str(len(blackjack)))
-            elif choice == "hit":
-                selectedCard=cardDeal(playerHandVal)
-                playerHand.append(selectedCard[0])
-                playerHandVal+=int(selectedCard[1])
-                if playerHandVal > 21:
-                    if playerSoft == True:
-                        playerHandVal -= 10
-                        print("You drew a", str(selectedCard[0])+". Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-                        print("Cards remaining:", str(len(blackjack)))
-                        playerSoft = False
-                    else:
-                        ongoing = False
-                        print("Busted! You Lose. Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-                        print("Computer Hand:", str(computerHand[0]), " X")
-                        print("Cards remaining:", str(len(blackjack)))
                 else:
-                    print("You drew a", str(selectedCard[0])+". Your Hand:", playerHand, "Value:", str(playerHandVal), "Soft Number:", str(playerSoft))
-                    print("Cards remaining:", str(len(blackjack)))
+                    cardValue = 11
             else:
-                while True:
-                    print("Invalid choice, Quit? (yes/no)")
-                    choice = str(input())
-                    if choice == "yes":
-                        ongoing = False
-                        break
-                    elif choice == "no":
-                        print("Returning to hit/stay")
-                        break
-                    else:
-                        print("Invalid choice")
+                cardValue = selected
+            return selected, cardValue
+        except IndexError:
+            print("No more cards, reshuffling")
+            cardRefill()
+            return cardDeal(handValue)
+    else:
+        print("No more cards, reshuffling")
+        cardRefill()
+        return cardDeal(handValue)
+
+# RL implementation
+Q = {} 
+epsilon = 0.1 
+alpha = 0.5  
+gamma = 1.0  
+
+def choose_action(state):
+    if random.random() < epsilon:
+        return random.choice(["hit", "stay"])
+    else:
+        if state not in Q:
+            Q[state] = {"hit": 0, "stay": 0}
+        return max(Q[state], key=Q[state].get)
+
+
+def update_Q(state, action, reward, next_state):
+    if state not in Q:
+        Q[state] = {"hit": 0, "stay": 0}
+    if next_state not in Q:
+        Q[next_state] = {"hit": 0, "stay": 0}
+
+    Q[state][action] += alpha * (reward + gamma * max(Q[next_state].values()) - Q[state][action])
+
+
+def train(num_episodes):
+    for episode in range(num_episodes):
+        print("Episode:", episode + 1)
+        playerHand = []
+        playerHandVal = 0
+        playerSoft = False
+
+        for i in range(0, 2):
+            selectedCard = cardDeal(playerHandVal)
+            playerHand.append(selectedCard[0])
+            playerHandVal += int(selectedCard[1])
+            if selectedCard[0] == "A":
+                playerSoft = True
+
+        state = (playerHandVal, playerSoft)
+        action = choose_action(state)
+
+        while action == "hit":
+            selectedCard = cardDeal(playerHandVal)
+            playerHand.append(selectedCard[0])
+            playerHandVal += int(selectedCard[1])
+
+            if playerHandVal > 21 and playerSoft:
+                playerHandVal -= 10
+                playerSoft = False
+
+            if playerHandVal > 21:
+                reward = -1
+                next_state = "bust"
+                update_Q(state, action, reward, next_state)
+                break
+            else:
+                state = (playerHandVal, playerSoft)
+                action = choose_action(state)
+
+        if action == "stay":
+            computerHand = []
+            computerHandVal = 0
+            computerSoft = False
+
+            for i in range(0, 2):
+                selectedCard = cardDeal(computerHandVal)
+                computerHand.append(selectedCard[0])
+                computerHandVal += int(selectedCard[1])
+                if selectedCard[0] == "A":
+                    computerSoft = True
+
+            while computerHandVal < 17:
+                selectedCard = cardDeal(computerHandVal)
+                computerHand.append(selectedCard[0])
+                computerHandVal += int(selectedCard[1])
+
+                if computerHandVal > 21 and computerSoft:
+                    computerHandVal -= 10
+                    computerSoft = False
+
+            if computerHandVal > 21:
+                reward = 1
+                next_state = "win"
+            elif playerHandVal > computerHandVal:
+                reward = 1
+                next_state = "win"
+            elif playerHandVal < computerHandVal:
+                reward = -1
+                next_state = "lose"
+            else:
+                reward = 0
+                next_state = "draw"
+
+            update_Q(state, action, reward, next_state)
+
+
+num_episodes = 10000
+
+Q = {}
+
+cardRefill()
+train(num_episodes)
